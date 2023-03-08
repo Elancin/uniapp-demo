@@ -29,7 +29,11 @@
 			this.getDetail()
 		},
 		methods:{
-			getDetail(){
+			TimestampToDate() {//时间戳转换
+			    let date1 = new Date();
+			    return date1.toLocaleDateString().replace(/\//g, "-") + " " + date1.toTimeString().substr(0, 8); 
+			},
+			getDetail(){//获取详情
 				uni.request({
 					url:"https://ku.qingnian8.com/dataApi/news/detail.php",
 					data:this.options,
@@ -38,14 +42,36 @@
 						res.data.content=res.data.content.replace(/<img/gi,'<img style="max-width:100%"')
 						// console.log(this.detail);
 						this.timestamp=res.data.posttime
+						this.saveHistory()
 						// console.log(this.timestamp);
 						uni.setNavigationBarTitle({//设置标题
 							title:this.detail.title
 						})
 					}
 				})
+			},
+			saveHistory(){//存储历史记录
+			let historyArr=uni.getStorageSync('historyArr')||[]
+			let looktimes=this.TimestampToDate()
+			let item={
+				title:this.detail.title,
+				id:this.detail.id,
+				classid:this.detail.classid,
+				picurl:this.detail.picurl,
+				looktime:looktimes
 			}
+			let index=historyArr.findIndex(i=>{
+				 return i.id==this.detail.id
+			})
+			if(index>=0){
+				historyArr.splice(index,1)
+			}
+			historyArr.unshift(item)
+				uni.setStorageSync('historyArr',historyArr)
+			},
+
 		},
+		
 		computed:{
 			    formattedDate() {
 			      const date = new Date(this.timestamp*1000)

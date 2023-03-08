@@ -12,7 +12,7 @@
 		</view>
 		<view class="content">
 			<view class="row" v-for="item in newsArr" :key="item.id">
-				<newsbox @click.native="goDetail" :item='item'></newsbox>
+				<newsbox @click.native="goDetail(item)" :item='item'></newsbox>
 			</view>
 		</view>
 	</view>
@@ -25,20 +25,30 @@
 				navIndex:0,
 				navArr:[],
 				newsArr:[],
+				currentPage:1,
 			};
 		},
 		onLoad() {
 			this.getNavData()
 			this.getNewsData()
 		},
+		onReachBottom() {
+			console.log('底部');
+			this.currentPage++;
+			this.getNewsData()
+		},
 		methods:{
 			clickNav(index,id){
 				this.navIndex=index
-				this.getNewsData(id)
+				this.currentPage=1
+				this.newsArr=[]
+				console.log(id);
+				this.getNewsData()
 			},
-			goDetail(){
+			goDetail(item){//详情
+				// console.log(item);
 				uni.navigateTo({
-					url:"/pages/detail/detail"
+					url:`/pages/detail/detail?cid=${item.classid}&id=${item.id}`
 				})
 			},
 			getNavData(){//获取导航
@@ -54,12 +64,12 @@
 				uni.request({
 					url:"https://ku.qingnian8.com/dataApi/news/newslist.php",
 					data:{
-						num:10,
-						cid:id
+						cid:id,
+						page:this.currentPage
 					},
 					success:res=>{
-						console.log(res);
-						this.newsArr=res.data
+						// console.log(res);
+						this.newsArr=[...this.newsArr,...res.data]
 					}
 				})
 			}

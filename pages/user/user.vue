@@ -1,12 +1,12 @@
 <template>
 	<view class="user">
 		<view class="top">
-			<image src="../../static/icon/时间.svg" mode=""></image>
+			<image src="../../static/icon/时间.png" mode=""></image>
 			<text>浏览历史</text>
 		</view>
 		<view class="content">
-			<view class="row" v-for="(item,index) in 10" key="index">
-				<newsbox @click.native="goDetail"></newsbox>
+			<view class="row" v-for="item in listArr" :key="item.id">
+				<newsbox @click.native="goDetail(item)" :item='item'></newsbox>
 			</view>
 		</view>
 	</view>
@@ -16,14 +16,22 @@
 	export default {
 		data() {
 			return {
-				
+				listArr:[]
 			};
 		},
+		onShow() {
+			this.getData()
+		},
 		methods:{
-			goDetail(){
+			goDetail(item){
 				uni.navigateTo({
-					url:"/pages/detail/detail"
+					url:`/pages/detail/detail?cid=${item.classid}&id=${item.id}`
 				})
+			},
+			getData(){//获取缓存
+				let hisArr=uni.getStorageSync('historyArr') || []
+				this.listArr=hisArr
+				// console.log(this.listArr);
 			}
 		}
 	}
